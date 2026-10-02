@@ -1,0 +1,196 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Global deny-all default
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() > 0 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isAdmin() {
+      return isSignedIn() && (
+        request.auth.token.email == 'kavinashk008@gmail.com' ||
+        (exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin')
+      );
+    }
+
+    function isFacultyOrAdmin() {
+      return isSignedIn() && (
+        isAdmin() ||
+        (exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'faculty')
+      );
+    }
+
+    function isValidUser(data) {
+      return data.keys().hasAll(['id', 'email', 'displayName', 'role']) &&
+             data.id is string && data.id.size() <= 128 &&
+             data.email is string && data.email.size() <= 150 &&
+             data.displayName is string && data.displayName.size() <= 100 &&
+             data.role in ['student', 'faculty', 'admin'];
+    }
+
+    function isValidExam(data) {
+      return data.keys().hasAll(['id', 'title', 'subject', 'durationMinutes', 'passMarks', 'totalMarks', 'creatorId', 'status']) &&
+             data.id is string && data.id.size() <= 128 &&
+             data.title is string && data.title.size() <= 150 &&
+             data.subject is string && data.subject.size() <= 100 &&
+             data.durationMinutes is number && data.durationMinutes > 0 &&
+             data.passMarks is number &&
+             data.totalMarks is number &&
+             data.creatorId is string && data.creatorId.size() <= 128 &&
+             data.status in ['draft', 'published', 'active', 'completed'];
+    }
+
+    function isValidQuestion(data) {
+      return data.keys().hasAll(['id', 'examId', 'type', 'text', 'marks']) &&
+             data.id is string && data.id.size() <= 128 &&
+             data.examId is string && data.examId.size() <= 128 &&
+             data.type in ['multiple_choice', 'multiple_select', 'true_false', 'fill_blank', 'short_answer', 'essay', 'coding'] &&
+             data.text is string && data.text.size() <= 4000 &&
+             data.marks is number;
+    }
+
+    function isValidAttempt(data) {
+      return data.keys().hasAll(['id', 'examId', 'studentId', 'status', 'violationCount']) &&
+             data.id is string && data.id.size() <= 128 &&
+             data.examId is string && data.examId.size() <= 128 &&
+             data.studentId is string && data.studentId.size() <= 128 &&
+             data.status in ['in_progress', 'submitted', 'auto_submitted', 'disqualified'] &&
+             data.violationCount is number;
+    }
+
+    function isValidViolation(data) {
+      return data.keys().hasAll(['id', 'attemptId', 'studentId', 'reason', 'warningLevel', 'timestamp']) &&
+             data.id is string && data.id.size() <= 128 &&
+             data.attemptId is string && data.attemptId.size() <= 128 &&
+             data.studentId is string && data.studentId.size() <= 128 &&
+             data.reason is string && data.reason.size() <= 250 &&
+             data.warningLevel is number &&
+             data.timestamp is string && data.timestamp.size() <= 50;
+    }
+
+    function isValidCertificate(data) {
+      return data.keys().hasAll(['id', 'attemptId', 'examId', 'studentId', 'studentName', 'percentage', 'verificationCode']) &&
+             data.id is string && data.id.size() <= 128 &&
+             data.attemptId is string && data.attemptId.size() <= 128 &&
+             data.examId is string && data.examId.size() <= 128 &&
+             data.studentId is string && data.studentId.size() <= 128 &&
+             data.studentName is string && data.studentName.size() <= 100 &&
+             data.percentage is number &&
+             data.verificationCode is string && data.verificationCode.size() <= 64;
+    }
+
+    // USERS COLLECTION
+    match /users/{userId} {
+      allow get: if isSignedIn() && (request.auth.uid == userId || isAdmin() || isFacultyOrAdmin());
+      allow list: if isSignedIn() && (isAdmin() || isFacultyOrAdmin());
+      allow create: if isSignedIn() && isValidId(userId) && isValidUser(incoming()) && (
+        request.auth.uid == userId || isAdmin()
+      );
+      allow update: if isSignedIn() && isValidId(userId) && isValidUser(incoming()) && (
+        isAdmin() ||
+        (request.auth.uid == userId && incoming().role == existing().role)
+      );
+      allow delete: if isAdmin();
+    }
+
+    // EXAMS COLLECTION (Public read for active curriculum catalog, protected writes)
+    match /exams/{examId} {
+      allow get: if true;
+      allow list: if true;
+      allow create: if isSignedIn() && isValidId(examId) && isValidExam(incoming()) && (
+        isFacultyOrAdmin() && incoming().creatorId == request.auth.uid
+      );
+      allow update: if isSignedIn() && isValidId(examId) && isValidExam(incoming()) && (
+        isAdmin() ||
+        (isFacultyOrAdmin() && existing().creatorId == request.auth.uid && incoming().creatorId == existing().creatorId)
+      );
+      allow delete: if isSignedIn() && isValidId(examId) && (
+        isAdmin() || (isFacultyOrAdmin() && existing().creatorId == request.auth.uid)
+      );
+
+      // QUESTIONS SUBCOLLECTION
+      match /questions/{questionId} {
+        allow get: if true;
+        allow list: if true;
+        allow create: if isSignedIn() && isValidId(questionId) && isValidQuestion(incoming()) && (
+          isAdmin() ||
+          (isFacultyOrAdmin() && get(/databases/$(database)/documents/exams/$(examId)).data.creatorId == request.auth.uid)
+        );
+        allow update: if isSignedIn() && isValidId(questionId) && isValidQuestion(incoming()) && (
+          isAdmin() ||
+          (isFacultyOrAdmin() && get(/databases/$(database)/documents/exams/$(examId)).data.creatorId == request.auth.uid)
+        );
+        allow delete: if isSignedIn() && isValidId(questionId) && (
+          isAdmin() ||
+          (isFacultyOrAdmin() && get(/databases/$(database)/documents/exams/$(examId)).data.creatorId == request.auth.uid)
+        );
+      }
+    }
+
+    // ATTEMPTS COLLECTION (Private candidate records)
+    match /attempts/{attemptId} {
+      allow get: if isSignedIn() && isValidId(attemptId) && (
+        resource.data.studentId == request.auth.uid || isFacultyOrAdmin()
+      );
+      allow list: if isSignedIn() && (
+        isFacultyOrAdmin() || resource.data.studentId == request.auth.uid
+      );
+      allow create: if isSignedIn() && isValidId(attemptId) && isValidAttempt(incoming()) && (
+        incoming().studentId == request.auth.uid || isAdmin()
+      );
+      allow update: if isSignedIn() && isValidId(attemptId) && isValidAttempt(incoming()) && (
+        isAdmin() ||
+        (existing().studentId == request.auth.uid && incoming().studentId == existing().studentId) ||
+        isFacultyOrAdmin()
+      );
+      allow delete: if isAdmin();
+
+      // VIOLATIONS SUBCOLLECTION
+      match /violations/{violationId} {
+        allow get: if isSignedIn() && (
+          get(/databases/$(database)/documents/attempts/$(attemptId)).data.studentId == request.auth.uid ||
+          isFacultyOrAdmin()
+        );
+        allow list: if isSignedIn() && (
+          get(/databases/$(database)/documents/attempts/$(attemptId)).data.studentId == request.auth.uid ||
+          isFacultyOrAdmin()
+        );
+        allow create: if isSignedIn() && isValidId(violationId) && isValidViolation(incoming()) && (
+          incoming().studentId == request.auth.uid || isFacultyOrAdmin()
+        );
+        allow update: if isAdmin();
+        allow delete: if isAdmin();
+      }
+    }
+
+    // CERTIFICATES COLLECTION (Publicly verifiable certificates)
+    match /certificates/{certificateId} {
+      allow get: if isValidId(certificateId);
+      allow list: if true;
+      allow create: if isSignedIn() && isValidId(certificateId) && isValidCertificate(incoming()) && (
+        incoming().studentId == request.auth.uid || isFacultyOrAdmin()
+      );
+      allow update: if isAdmin();
+      allow delete: if isAdmin();
+    }
+  }
+}

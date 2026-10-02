@@ -1,0 +1,147 @@
+{
+  "entities": {
+    "user": {
+      "title": "User",
+      "description": "User profile containing identity, role, and department information",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Unique Firebase Auth UID" },
+        "email": { "type": "string", "description": "Email address of user" },
+        "displayName": { "type": "string", "description": "Full name of the user", "maxLength": 100 },
+        "role": { "type": "string", "enum": ["student", "faculty", "admin"], "description": "Access control role" },
+        "department": { "type": "string", "description": "Department or faculty division", "maxLength": 100 },
+        "createdAt": { "type": "string", "description": "ISO timestamp of user creation" }
+      },
+      "required": ["id", "email", "displayName", "role"]
+    },
+    "exam": {
+      "title": "Exam",
+      "description": "Assessment definition including timing, security rules, and grading metrics",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Unique identifier for the exam" },
+        "title": { "type": "string", "description": "Title of the examination", "maxLength": 150 },
+        "description": { "type": "string", "description": "Instructions and overview", "maxLength": 1000 },
+        "subject": { "type": "string", "description": "Subject name", "maxLength": 100 },
+        "department": { "type": "string", "description": "Department code or name", "maxLength": 100 },
+        "durationMinutes": { "type": "number", "description": "Time limit in minutes" },
+        "passMarks": { "type": "number", "description": "Minimum score needed to pass" },
+        "totalMarks": { "type": "number", "description": "Total available marks" },
+        "creatorId": { "type": "string", "description": "UID of faculty/admin who created exam" },
+        "creatorName": { "type": "string", "description": "Name of creator" },
+        "status": { "type": "string", "enum": ["draft", "published", "active", "completed"], "description": "Exam status" },
+        "randomizeOrder": { "type": "boolean", "description": "Whether to randomize question order" },
+        "enableWebcam": { "type": "boolean", "description": "Whether webcam monitoring is requested" },
+        "enableFullScreen": { "type": "boolean", "description": "Whether fullscreen lock is enforced" },
+        "strictAntiCheat": { "type": "boolean", "description": "Auto-submit on 4 warnings" },
+        "negativeMarking": { "type": "boolean", "description": "Deduct marks for incorrect answers" },
+        "negativeMarkValue": { "type": "number", "description": "Value to deduct per wrong answer" },
+        "createdAt": { "type": "string", "description": "Creation timestamp" },
+        "updatedAt": { "type": "string", "description": "Last update timestamp" }
+      },
+      "required": ["id", "title", "subject", "durationMinutes", "passMarks", "totalMarks", "creatorId", "status"]
+    },
+    "question": {
+      "title": "Question",
+      "description": "Exam question with choices, marks, and explanation",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Question identifier" },
+        "examId": { "type": "string", "description": "Parent exam identifier" },
+        "section": { "type": "string", "description": "Section name (e.g. Core, Advanced)", "maxLength": 80 },
+        "type": { "type": "string", "enum": ["multiple_choice", "multiple_select", "true_false", "fill_blank", "short_answer", "essay", "coding"], "description": "Question format" },
+        "text": { "type": "string", "description": "Question statement or prompt", "maxLength": 3000 },
+        "options": { "type": "string", "description": "JSON stringified list of options" },
+        "correctAnswer": { "type": "string", "description": "Correct answer or model solution" },
+        "explanation": { "type": "string", "description": "Detailed explanation of solution", "maxLength": 2000 },
+        "marks": { "type": "number", "description": "Points awarded for correct response" },
+        "difficulty": { "type": "string", "enum": ["easy", "medium", "hard"], "description": "Difficulty rating" }
+      },
+      "required": ["id", "examId", "type", "text", "marks"]
+    },
+    "attempt": {
+      "title": "ExamAttempt",
+      "description": "Student exam session with live timer, violation counter, and answers",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Attempt identifier" },
+        "examId": { "type": "string", "description": "Associated exam identifier" },
+        "studentId": { "type": "string", "description": "Student UID" },
+        "studentName": { "type": "string", "description": "Student full name", "maxLength": 100 },
+        "studentEmail": { "type": "string", "description": "Student email address" },
+        "status": { "type": "string", "enum": ["in_progress", "submitted", "auto_submitted", "disqualified"], "description": "Attempt status" },
+        "answers": { "type": "string", "description": "JSON string of student answers" },
+        "score": { "type": "number", "description": "Total awarded marks" },
+        "percentage": { "type": "number", "description": "Percentage scored" },
+        "passed": { "type": "boolean", "description": "Whether passing threshold was met" },
+        "violationCount": { "type": "number", "description": "Count of anti-cheat warnings triggered" },
+        "currentQuestionIndex": { "type": "number", "description": "Index of question student is currently on" },
+        "remainingSeconds": { "type": "number", "description": "Live timer remaining seconds" },
+        "startedAt": { "type": "string", "description": "Session start timestamp" },
+        "submittedAt": { "type": "string", "description": "Session submission timestamp" }
+      },
+      "required": ["id", "examId", "studentId", "status", "violationCount"]
+    },
+    "violationLog": {
+      "title": "ViolationLog",
+      "description": "Recorded integrity breach during an active exam attempt",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Violation entry identifier" },
+        "attemptId": { "type": "string", "description": "Parent attempt identifier" },
+        "examId": { "type": "string", "description": "Parent exam identifier" },
+        "studentId": { "type": "string", "description": "Student UID" },
+        "reason": { "type": "string", "description": "Detailed reason (e.g. Tab switch, Fullscreen exit, Copy attempt)", "maxLength": 200 },
+        "warningLevel": { "type": "number", "description": "Warning stage from 1 to 4" },
+        "browserInfo": { "type": "string", "description": "User agent and viewport details", "maxLength": 300 },
+        "timestamp": { "type": "string", "description": "ISO timestamp when breach occurred" }
+      },
+      "required": ["id", "attemptId", "studentId", "reason", "warningLevel", "timestamp"]
+    },
+    "certificate": {
+      "title": "Certificate",
+      "description": "Verified credential issued upon passing an exam",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Certificate serial / verification ID" },
+        "attemptId": { "type": "string", "description": "Associated attempt ID" },
+        "examId": { "type": "string", "description": "Exam ID" },
+        "examTitle": { "type": "string", "description": "Exam title", "maxLength": 150 },
+        "studentId": { "type": "string", "description": "Student UID" },
+        "studentName": { "type": "string", "description": "Student name", "maxLength": 100 },
+        "score": { "type": "number", "description": "Awarded score" },
+        "percentage": { "type": "number", "description": "Score percentage" },
+        "grade": { "type": "string", "description": "Letter grade (A+, A, B, etc.)", "maxLength": 10 },
+        "issuedAt": { "type": "string", "description": "Timestamp of issuance" },
+        "verificationCode": { "type": "string", "description": "Cryptographic verification token", "maxLength": 64 }
+      },
+      "required": ["id", "attemptId", "examId", "studentId", "studentName", "percentage", "verificationCode"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "user",
+      "description": "User account information and system role assignments"
+    },
+    "/exams/{examId}": {
+      "schema": "exam",
+      "description": "Exam records created by faculty or administrators"
+    },
+    "/exams/{examId}/questions/{questionId}": {
+      "schema": "question",
+      "description": "Question bank items linked to a specific exam"
+    },
+    "/attempts/{attemptId}": {
+      "schema": "attempt",
+      "description": "Student live and submitted examination attempts"
+    },
+    "/attempts/{attemptId}/violations/{violationId}": {
+      "schema": "violationLog",
+      "description": "Audit trails of cheating and window focus violations"
+    },
+    "/certificates/{certificateId}": {
+      "schema": "certificate",
+      "description": "Verifiable exam completion certificates"
+    }
+  }
+}

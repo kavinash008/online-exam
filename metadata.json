@@ -1,0 +1,12 @@
+{
+  "name": "ExamPro AI",
+  "description": "Secure Online Examination Management System with real-time anti-cheating, live faculty monitoring, multi-format assessments, instant grading, and Gemini AI support.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone"
+  ],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
+
