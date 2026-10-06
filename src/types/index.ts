@@ -6,34 +6,41 @@ export interface UserProfile {
   displayName: string;
   role: UserRole;
   department?: string;
+  registrationNumber?: string; // e.g. KV2026/CS/1042
   avatar?: string;
   createdAt: string;
 }
 
 export type QuestionType =
-  | 'multiple_choice'
-  | 'multiple_select'
-  | 'true_false'
-  | 'fill_blank'
-  | 'short_answer'
-  | 'essay'
-  | 'coding';
+  | 'multiple_choice' // Single correct choice
+  | 'multiple_select' // Multiple correct choices
+  | 'true_false'      // True / False
+  | 'fill_blank'      // Fill in the blank
+  | 'short_answer'    // Short text evaluation
+  | 'essay'           // Descriptive answer
+  | 'coding';         // Code challenge with runner
 
 export type DifficultyLevel = 'easy' | 'medium' | 'hard';
 
 export interface Question {
   id: string;
-  examId: string;
-  section: string;
+  examId?: string;       // Optional if belonging to Question Bank
+  subject: string;       // e.g. Computer Science, Medicine, Pharmacy
+  topic: string;         // e.g. Data Structures, Clinical Pharmacology
+  section: string;       // Section name within exam (e.g. Core Knowledge)
   type: QuestionType;
   text: string;
-  options?: string[]; // for choice questions
-  correctAnswer: string; // or comma-separated string for multi-select
-  explanation?: string;
-  marks: number;
+  options?: string[];    // For multiple choice & true/false
+  correctAnswer: string; // Correct answer or comma-separated keys
+  explanation?: string;  // Detailed solution explanation
+  marks: number;         // Positive marks
+  negativeMarks?: number;// Deduction if wrong
   difficulty: DifficultyLevel;
   codeLanguage?: string;
   starterCode?: string;
+  createdBy?: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface Exam {
@@ -42,6 +49,7 @@ export interface Exam {
   description: string;
   subject: string;
   department: string;
+  instructions?: string;
   durationMinutes: number;
   passMarks: number;
   totalMarks: number;
@@ -49,12 +57,14 @@ export interface Exam {
   creatorName: string;
   status: 'draft' | 'published' | 'active' | 'completed';
   randomizeOrder: boolean;
+  randomizeOptions?: boolean;
   enableWebcam: boolean;
   enableFullScreen: boolean;
   strictAntiCheat: boolean;
   negativeMarking: boolean;
   negativeMarkValue: number;
   sections: string[];
+  questionIds?: string[]; // IDs of questions linked to this exam
   scheduleStart?: string;
   scheduleEnd?: string;
   createdAt: string;
@@ -69,12 +79,14 @@ export interface ExamAttempt {
   studentName: string;
   studentEmail: string;
   status: 'in_progress' | 'submitted' | 'auto_submitted' | 'disqualified';
-  answers: Record<string, string | string[]>;
+  answers: Record<string, any>; // questionId -> answer string | string[]
+  questionOrder?: string[];     // Consistent randomized order for this attempt
   markedForReview: string[];
   score: number;
   totalMarks: number;
   percentage: number;
   passed: boolean;
+  accuracy: number;
   correctCount: number;
   wrongCount: number;
   skippedCount: number;
@@ -82,8 +94,11 @@ export interface ExamAttempt {
   currentQuestionIndex: number;
   remainingSeconds: number;
   startedAt: string;
+  expectedEndTime?: string;     // Source of truth for timer
   submittedAt?: string;
+  timeTakenSeconds?: number;
   subjectBreakdown?: Record<string, { total: number; scored: number }>;
+  topicBreakdown?: Record<string, { total: number; scored: number; accuracy: number }>;
 }
 
 export interface ViolationLog {
@@ -93,7 +108,7 @@ export interface ViolationLog {
   studentId: string;
   studentName?: string;
   reason: string;
-  warningLevel: number; // 1, 2, 3, 4
+  warningLevel: number; // 1 to 4
   browserInfo: string;
   timestamp: string;
 }
@@ -135,8 +150,18 @@ export interface SystemAuditLog {
   userId: string;
   userName: string;
   action: string;
-  entityType: 'exam' | 'attempt' | 'question' | 'security';
+  entityType: 'exam' | 'attempt' | 'question' | 'security' | 'user';
   entityId: string;
   timestamp: string;
   details?: string;
+}
+
+export interface SubjectItem {
+  id: string;
+  code: string;
+  name: string;
+  department: string;
+  topics: string[];
+  examCount: number;
+  questionCount: number;
 }

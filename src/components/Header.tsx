@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useExam } from '../context/ExamContext';
+import { KvellLogo } from './KvellLogo';
 import {
-  ShieldCheck,
   Sun,
   Moon,
   Sparkles,
@@ -15,7 +15,8 @@ import {
   LogOut,
   X,
   Menu,
-  Command
+  Home,
+  Check,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { UserRole } from '../types';
@@ -24,25 +25,29 @@ interface HeaderProps {
   onToggleAiChat: () => void;
   isAiChatOpen: boolean;
   onOpenMobileSidebar?: () => void;
+  onGoToLanding?: () => void;
+  onOpenAuth?: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
   onToggleAiChat,
   isAiChatOpen,
   onOpenMobileSidebar,
+  onGoToLanding,
+  onOpenAuth,
 }) => {
   const {
     user,
     switchRole,
     darkMode,
     toggleDarkMode,
-    loginWithGoogle,
     logout,
     notifications,
     markNotificationRead,
     clearNotifications,
     searchQuery,
     setSearchQuery,
+    saveStatus,
   } = useExam();
 
   const [roleMenuOpen, setRoleMenuOpen] = useState(false);
@@ -53,9 +58,9 @@ export const Header: React.FC<HeaderProps> = ({
   const unreadCount = notifications.filter((n) => !n.read).length;
 
   const roles: { role: UserRole; label: string; icon: React.ReactNode }[] = [
-    { role: 'student', label: 'Student', icon: <GraduationCap className="w-3.5 h-3.5" /> },
-    { role: 'faculty', label: 'Faculty', icon: <Briefcase className="w-3.5 h-3.5" /> },
-    { role: 'admin', label: 'Admin', icon: <ShieldAlert className="w-3.5 h-3.5" /> },
+    { role: 'student', label: 'Student Portal', icon: <GraduationCap className="w-3.5 h-3.5" /> },
+    { role: 'faculty', label: 'Faculty Examiner', icon: <Briefcase className="w-3.5 h-3.5" /> },
+    { role: 'admin', label: 'System Admin', icon: <ShieldAlert className="w-3.5 h-3.5" /> },
   ];
 
   // Close menus on outside click
@@ -73,9 +78,9 @@ export const Header: React.FC<HeaderProps> = ({
   }, []);
 
   return (
-    <header className="sticky top-0 z-30 w-full backdrop-blur-xl bg-white/80 dark:bg-slate-900/80 border-b border-slate-200/80 dark:border-slate-800/80 transition-colors">
+    <header className="sticky top-0 z-30 w-full backdrop-blur-xl bg-white/85 dark:bg-slate-900/85 border-b border-slate-200/80 dark:border-slate-800/80 transition-colors">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
-        {/* Left: Mobile Toggle & Brand or Search */}
+        {/* Left: Mobile Toggle & Search */}
         <div className="flex items-center gap-3 flex-1 max-w-lg">
           {onOpenMobileSidebar && (
             <button
@@ -86,213 +91,241 @@ export const Header: React.FC<HeaderProps> = ({
             </button>
           )}
 
-          {/* Quick Search Bar */}
+          {/* Quick Mobile Logo */}
+          <div className="md:hidden flex items-center">
+            <KvellLogo variant="horizontal" size="xs" showSubtitle={false} />
+          </div>
+
+          {/* Quick Global Search Bar */}
           <div className="relative w-full max-w-xs sm:max-w-sm hidden sm:block">
             <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search assessments, topics, questions..."
+              placeholder="Search assessments, subjects, questions..."
               className="w-full pl-9 pr-8 py-2 rounded-xl bg-slate-100 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700/60 text-xs text-slate-900 dark:text-white placeholder-slate-400 focus:outline-hidden focus:ring-2 focus:ring-indigo-500 transition-all"
             />
-            {searchQuery ? (
+            {searchQuery && (
               <button
                 onClick={() => setSearchQuery('')}
                 className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
               >
                 <X className="w-3.5 h-3.5" />
               </button>
-            ) : (
-              <span className="hidden lg:flex items-center gap-0.5 absolute right-2.5 top-1/2 -translate-y-1/2 text-[10px] font-mono text-slate-400 bg-white dark:bg-slate-700 px-1.5 py-0.5 rounded-sm border border-slate-200 dark:border-slate-600 shadow-2xs">
-                <Command className="w-2.5 h-2.5" />K
+            )}
+          </div>
+
+          {/* Auto-save status feedback */}
+          <div className="hidden lg:flex items-center gap-1.5 text-[11px] font-medium text-slate-400">
+            {saveStatus === 'saved' && (
+              <span className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400">
+                <Check className="w-3 h-3" />
+                <span>Cloud Sync Active</span>
+              </span>
+            )}
+            {saveStatus === 'saving' && (
+              <span className="flex items-center gap-1 text-amber-500 animate-pulse">
+                <span>Saving...</span>
               </span>
             )}
           </div>
         </div>
 
-        {/* Center: Clean Role Switcher segmented control */}
-        <div className="hidden lg:flex items-center bg-slate-100 dark:bg-slate-800/80 p-1 rounded-xl border border-slate-200/80 dark:border-slate-700/60">
-          {roles.map((r) => {
-            const isActive = user.role === r.role;
-            return (
-              <button
-                key={r.role}
-                onClick={() => switchRole(r.role)}
-                className={`relative px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all ${
-                  isActive
-                    ? 'text-slate-900 dark:text-white'
-                    : 'text-slate-500 hover:text-slate-900 dark:hover:text-white'
-                }`}
-              >
-                {isActive && (
-                  <motion.div
-                    layoutId="activeRoleIndicator"
-                    className="absolute inset-0 bg-white dark:bg-slate-700 rounded-lg shadow-xs ring-1 ring-slate-200/60 dark:ring-slate-600"
-                    transition={{ type: 'spring', stiffness: 400, damping: 30 }}
-                  />
-                )}
-                <span className="relative z-10">{r.icon}</span>
-                <span className="relative z-10">{r.label}</span>
-              </button>
-            );
-          })}
-        </div>
+        {/* Right Action Icons & Controls */}
+        <div className="flex items-center gap-2 sm:gap-3">
+          {/* Public Portal Shortcut */}
+          {onGoToLanding && (
+            <button
+              onClick={onGoToLanding}
+              className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+              title="Return to Public Landing Page"
+            >
+              <Home className="w-3.5 h-3.5" />
+              <span>Portal</span>
+            </button>
+          )}
 
-        {/* Right Action Tools */}
-        <div className="flex items-center gap-2">
-          {/* Notifications Popover */}
+          {/* Theme Toggle */}
+          <button
+            onClick={toggleDarkMode}
+            className="p-2 rounded-xl text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+            title={darkMode ? 'Switch to Light Theme' : 'Switch to Dark Theme'}
+          >
+            {darkMode ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-slate-600" />}
+          </button>
+
+          {/* Notification Popover */}
           <div className="relative" ref={notifRef}>
             <button
               onClick={() => setNotifOpen(!notifOpen)}
-              className="p-2 rounded-xl text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200/80 dark:border-slate-800 relative transition-colors"
-              title="System Notifications"
+              className="p-2 rounded-xl text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors relative"
+              title="Notifications"
             >
               <Bell className="w-4 h-4" />
               {unreadCount > 0 && (
-                <span className="w-2 h-2 rounded-full bg-rose-500 absolute top-1.5 right-1.5 animate-pulse" />
+                <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-rose-500 ring-2 ring-white dark:ring-slate-900 animate-pulse" />
               )}
             </button>
 
             <AnimatePresence>
               {notifOpen && (
                 <motion.div
-                  initial={{ opacity: 0, y: 8, scale: 0.96 }}
-                  animate={{ opacity: 1, y: 0, scale: 1 }}
-                  exit={{ opacity: 0, y: 8, scale: 0.96 }}
+                  initial={{ opacity: 0, scale: 0.95, y: 10 }}
+                  animate={{ opacity: 1, scale: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.95, y: 10 }}
                   transition={{ duration: 0.15 }}
-                  className="absolute right-0 mt-2 w-80 rounded-2xl bg-white dark:bg-slate-800 shadow-2xl border border-slate-200 dark:border-slate-700 p-4 z-50 text-xs"
+                  className="absolute right-0 mt-2 w-80 sm:w-96 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xl z-50 overflow-hidden"
                 >
-                  <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-700">
-                    <span className="font-bold text-slate-900 dark:text-white">
-                      Notifications ({unreadCount} new)
-                    </span>
-                    <button
-                      onClick={clearNotifications}
-                      className="text-[11px] text-indigo-600 dark:text-indigo-400 hover:underline font-semibold"
-                    >
-                      Mark all read
-                    </button>
+                  <div className="p-3.5 border-b border-slate-200/80 dark:border-slate-800 flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs font-bold text-slate-900 dark:text-white">Notifications</span>
+                      {unreadCount > 0 && (
+                        <span className="text-[10px] font-bold px-1.5 py-0.2 rounded-full bg-indigo-100 text-indigo-700 dark:bg-indigo-950 dark:text-indigo-300">
+                          {unreadCount} new
+                        </span>
+                      )}
+                    </div>
+                    {unreadCount > 0 && (
+                      <button
+                        onClick={clearNotifications}
+                        className="text-[11px] font-medium text-indigo-600 dark:text-indigo-400 hover:underline"
+                      >
+                        Mark all read
+                      </button>
+                    )}
                   </div>
 
-                  <div className="divide-y divide-slate-100 dark:divide-slate-700/60 max-h-64 overflow-y-auto mt-2">
-                    {notifications.map((n) => (
-                      <div
-                        key={n.id}
-                        onClick={() => markNotificationRead(n.id)}
-                        className={`py-2.5 px-1.5 rounded-lg cursor-pointer transition-colors ${
-                          n.read
-                            ? 'opacity-60 hover:opacity-100'
-                            : 'bg-indigo-50/40 dark:bg-indigo-950/30'
-                        }`}
-                      >
-                        <div className="flex items-start justify-between gap-1">
-                          <span className="font-bold text-slate-900 dark:text-white text-[11px]">
-                            {n.title}
-                          </span>
-                          {!n.read && (
-                            <span className="w-1.5 h-1.5 rounded-full bg-indigo-600 flex-shrink-0 mt-1" />
-                          )}
-                        </div>
-                        <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 leading-snug">
-                          {n.message}
-                        </p>
+                  <div className="max-h-72 overflow-y-auto divide-y divide-slate-100 dark:divide-slate-800/60">
+                    {notifications.length === 0 ? (
+                      <div className="p-6 text-center text-xs text-slate-400">
+                        You're all caught up. No notifications yet.
                       </div>
-                    ))}
+                    ) : (
+                      notifications.map((n) => (
+                        <div
+                          key={n.id}
+                          onClick={() => markNotificationRead(n.id)}
+                          className={`p-3 text-xs transition-colors cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/50 ${
+                            !n.read ? 'bg-indigo-50/40 dark:bg-indigo-950/20' : ''
+                          }`}
+                        >
+                          <div className="flex items-start justify-between gap-2">
+                            <span className="font-semibold text-slate-800 dark:text-slate-200">{n.title}</span>
+                            <span className="text-[10px] text-slate-400 whitespace-nowrap">
+                              {new Date(n.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                            </span>
+                          </div>
+                          <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 leading-relaxed">
+                            {n.message}
+                          </p>
+                        </div>
+                      ))
+                    )}
                   </div>
                 </motion.div>
               )}
             </AnimatePresence>
           </div>
 
-          {/* AI Tutor Assistant Trigger */}
+          {/* AI Mentor Quick Trigger */}
           <button
             onClick={onToggleAiChat}
-            className={`relative flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold border transition-all ${
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
               isAiChatOpen
-                ? 'bg-indigo-600 text-white border-indigo-500 shadow-md shadow-indigo-500/20'
-                : 'bg-indigo-50 dark:bg-indigo-950/50 text-indigo-700 dark:text-indigo-300 border-indigo-200 dark:border-indigo-800 hover:bg-indigo-100'
+                ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/20'
+                : 'bg-indigo-50 dark:bg-indigo-950/60 border border-indigo-200 dark:border-indigo-800 text-indigo-700 dark:text-indigo-300 hover:brightness-105'
             }`}
           >
-            <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+            <Sparkles className="w-3.5 h-3.5 text-amber-500 animate-pulse" />
             <span className="hidden sm:inline">AI Tutor</span>
           </button>
 
-          {/* Dark / Light Toggle */}
-          <button
-            onClick={toggleDarkMode}
-            className="p-2 rounded-xl text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200/80 dark:border-slate-800 transition-colors"
-          >
-            {darkMode ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-slate-600" />}
-          </button>
-
-          {/* User Profile / Switcher Dropdown */}
+          {/* Role Switcher & Account Dropdown */}
           <div className="relative" ref={roleRef}>
             <button
               onClick={() => setRoleMenuOpen(!roleMenuOpen)}
-              className="flex items-center gap-2 p-1.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/60 hover:bg-slate-100 transition-colors"
+              className="flex items-center gap-2 pl-2 pr-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800/80 hover:bg-slate-200/80 dark:hover:bg-slate-700/80 transition-colors"
             >
-              <div className="w-7 h-7 rounded-lg bg-gradient-to-tr from-indigo-500 to-sky-400 flex items-center justify-center text-white text-xs font-bold shadow-xs">
+              <div className="w-6 h-6 rounded-lg bg-indigo-600 text-white flex items-center justify-center text-xs font-bold shadow-xs">
                 {user.displayName.charAt(0)}
               </div>
-              <ChevronDown className="w-3 h-3 text-slate-400 hidden sm:block" />
+              <div className="flex flex-col text-left leading-tight hidden sm:flex">
+                <span className="text-xs font-bold text-slate-900 dark:text-white truncate max-w-[120px]">
+                  {user.displayName}
+                </span>
+                <span className="text-[9px] font-semibold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider">
+                  {user.role}
+                </span>
+              </div>
+              <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
             </button>
 
             <AnimatePresence>
               {roleMenuOpen && (
                 <motion.div
-                  initial={{ opacity: 0, y: 8, scale: 0.96 }}
-                  animate={{ opacity: 1, y: 0, scale: 1 }}
-                  exit={{ opacity: 0, y: 8, scale: 0.96 }}
+                  initial={{ opacity: 0, scale: 0.95, y: 10 }}
+                  animate={{ opacity: 1, scale: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.95, y: 10 }}
                   transition={{ duration: 0.15 }}
-                  className="absolute right-0 mt-2 w-64 rounded-2xl bg-white dark:bg-slate-800 shadow-2xl border border-slate-200 dark:border-slate-700 py-2 z-50"
+                  className="absolute right-0 mt-2 w-64 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xl z-50 p-2 space-y-1"
                 >
-                  <div className="px-4 py-2 border-b border-slate-100 dark:border-slate-700/60">
-                    <p className="text-xs font-bold text-slate-900 dark:text-white truncate">
-                      {user.displayName}
-                    </p>
-                    <p className="text-[11px] text-slate-400 truncate">{user.email}</p>
-                    <div className="mt-1 text-[10px] font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider">
-                      Role: {user.role}
-                    </div>
+                  <div className="px-3 py-2 border-b border-slate-100 dark:border-slate-800">
+                    <div className="text-xs font-bold text-slate-900 dark:text-white">{user.displayName}</div>
+                    <div className="text-[10px] text-slate-400">{user.email}</div>
+                    {user.registrationNumber && (
+                      <div className="text-[10px] font-mono text-indigo-600 dark:text-indigo-400 mt-0.5">
+                        {user.registrationNumber}
+                      </div>
+                    )}
                   </div>
 
-                  <div className="p-2 space-y-1">
-                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider px-2">
-                      Switch Active Persona
-                    </span>
-                    {roles.map((r) => (
-                      <button
-                        key={r.role}
-                        onClick={() => {
-                          switchRole(r.role);
-                          setRoleMenuOpen(false);
-                        }}
-                        className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors ${
-                          user.role === r.role
-                            ? 'bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400'
-                            : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700/50'
-                        }`}
-                      >
-                        <span className="flex items-center gap-2">
-                          {r.icon}
-                          {r.label}
-                        </span>
-                        {user.role === r.role && <CheckCircle2 className="w-3.5 h-3.5" />}
-                      </button>
-                    ))}
+                  <div className="pt-1 text-[10px] font-bold text-slate-400 uppercase tracking-wider px-3">
+                    Switch Workspace Role
                   </div>
 
-                  <div className="p-2 border-t border-slate-100 dark:border-slate-700/60">
+                  {roles.map((r) => (
                     <button
+                      key={r.role}
                       onClick={() => {
-                        logout();
+                        switchRole(r.role);
                         setRoleMenuOpen(false);
                       }}
-                      className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-xs font-semibold text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-colors"
+                      className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold transition-colors ${
+                        user.role === r.role
+                          ? 'bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300'
+                          : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
+                      }`}
+                    >
+                      <div className="flex items-center gap-2">
+                        {r.icon}
+                        <span>{r.label}</span>
+                      </div>
+                      {user.role === r.role && <CheckCircle2 className="w-3.5 h-3.5 text-indigo-600" />}
+                    </button>
+                  ))}
+
+                  <div className="pt-1 border-t border-slate-100 dark:border-slate-800">
+                    {onOpenAuth && (
+                      <button
+                        onClick={() => {
+                          setRoleMenuOpen(false);
+                          onOpenAuth();
+                        }}
+                        className="w-full text-left px-3 py-2 rounded-xl text-xs font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                      >
+                        Account Settings &amp; Login
+                      </button>
+                    )}
+                    <button
+                      onClick={() => {
+                        setRoleMenuOpen(false);
+                        logout();
+                      }}
+                      className="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-medium text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/50 transition-colors"
                     >
                       <LogOut className="w-3.5 h-3.5" />
-                      Sign Out
+                      <span>Log Out</span>
                     </button>
                   </div>
                 </motion.div>

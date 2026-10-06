@@ -1,0 +1,166 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500" width="100%" height="100%">
+  <defs>
+    <!-- Gradients -->
+    <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f6d365" />
+      <stop offset="50%" stop-color="#d4af37" />
+      <stop offset="100%" stop-color="#aa771c" />
+    </linearGradient>
+    <linearGradient id="shieldGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#0a2558" />
+      <stop offset="100%" stop-color="#051430" />
+    </linearGradient>
+    <linearGradient id="ribbonGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#0c2340" />
+      <stop offset="50%" stop-color="#14376c" />
+      <stop offset="100%" stop-color="#0c2340" />
+    </linearGradient>
+    <!-- Text Paths -->
+    <path id="topArcPath" d="M 75 250 A 175 175 0 0 1 425 250" fill="none" />
+    <path id="bottomArcPath" d="M 120 375 A 175 175 0 0 0 380 375" fill="none" />
+    <filter id="subtleShadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-opacity="0.25" />
+    </filter>
+  </defs>
+
+  <!-- Outer Ring Background -->
+  <circle cx="250" cy="250" r="235" fill="#ffffff" stroke="url(#goldGrad)" stroke-width="6" />
+  <circle cx="250" cy="250" r="222" fill="#fafbfc" stroke="#c5a059" stroke-width="2" />
+
+  <!-- Laurel Wreath Leaves on Bottom Sides -->
+  <g fill="#c5a059" opacity="0.95">
+    <!-- Left Leaves -->
+    <path d="M 85 300 C 70 320 80 345 88 340 C 95 330 92 310 85 300 Z" />
+    <path d="M 98 335 C 82 355 95 380 105 372 C 112 360 108 342 98 335 Z" />
+    <path d="M 115 370 C 102 390 120 410 130 400 C 135 388 128 375 115 370 Z" />
+    <!-- Right Leaves -->
+    <path d="M 415 300 C 430 320 420 345 412 340 C 405 330 408 310 415 300 Z" />
+    <path d="M 402 335 C 418 355 405 380 395 372 C 388 360 392 342 402 335 Z" />
+    <path d="M 385 370 C 398 390 380 410 370 400 C 365 388 372 375 385 370 Z" />
+  </g>
+
+  <!-- Top Text: KARPAGA VINAYAGA -->
+  <text font-family="'Cinzel', 'Times New Roman', serif" font-size="28" font-weight="bold" fill="#0d3b66" letter-spacing="4">
+    <textPath href="#topArcPath" startOffset="50%" text-anchor="middle">
+      ★ KARPAGA VINAYAGA ★
+    </textPath>
+  </text>
+
+  <!-- Circular Faculty Ring Background -->
+  <circle cx="250" cy="250" r="160" fill="#f8fafc" stroke="#d4af37" stroke-width="3" />
+
+  <!-- Department Petals / Segments -->
+  <!-- Medicine (Teal Top-Left) -->
+  <path d="M 250 250 L 105 200 A 155 155 0 0 1 150 140 Z" fill="#0f766e" />
+  <g transform="translate(142, 175) scale(0.65)">
+    <!-- Caduceus / Rod with Snake -->
+    <circle cx="16" cy="16" r="14" fill="#ffffff" opacity="0.2" />
+    <path d="M 16 6 L 16 28 M 12 10 Q 20 14 12 18 Q 20 22 12 26" stroke="#ffffff" stroke-width="2.5" fill="none" stroke-linecap="round" />
+    <text x="16" y="38" font-family="system-ui, sans-serif" font-size="10" font-weight="bold" fill="#ffffff" text-anchor="middle" letter-spacing="0.5">MEDICINE</text>
+  </g>
+
+  <!-- Pharmacy (Green Top-Right) -->
+  <path d="M 250 250 L 350 140 A 155 155 0 0 1 395 200 Z" fill="#15803d" />
+  <g transform="translate(325, 175) scale(0.65)">
+    <!-- Mortar & Pestle -->
+    <circle cx="16" cy="16" r="14" fill="#ffffff" opacity="0.2" />
+    <path d="M 8 16 Q 16 28 24 16 Z M 18 8 L 22 14" stroke="#ffffff" stroke-width="2.5" fill="#ffffff" stroke-linecap="round" />
+    <text x="16" y="38" font-family="system-ui, sans-serif" font-size="10" font-weight="bold" fill="#ffffff" text-anchor="middle" letter-spacing="0.5">PHARMACY</text>
+  </g>
+
+  <!-- Dentistry (Sky Blue Mid-Left) -->
+  <path d="M 250 250 L 98 250 A 155 155 0 0 0 115 320 Z" fill="#0284c7" />
+  <g transform="translate(125, 275) scale(0.65)">
+    <!-- Tooth Icon -->
+    <path d="M 10 10 Q 16 6 22 10 Q 24 16 22 26 Q 19 28 16 20 Q 13 28 10 26 Q 8 16 10 10 Z" fill="#ffffff" />
+    <text x="16" y="38" font-family="system-ui, sans-serif" font-size="9" font-weight="bold" fill="#ffffff" text-anchor="middle" letter-spacing="0.5">DENTISTRY</text>
+  </g>
+
+  <!-- Nursing (Purple Mid-Right) -->
+  <path d="M 250 250 L 385 320 A 155 155 0 0 0 402 250 Z" fill="#581c87" />
+  <g transform="translate(345, 275) scale(0.65)">
+    <!-- Nurse Cap with Cross -->
+    <path d="M 8 18 L 12 10 L 20 10 L 24 18 Z" fill="#ffffff" />
+    <path d="M 16 12 L 16 16 M 14 14 L 18 14" stroke="#dc2626" stroke-width="1.8" />
+    <text x="16" y="38" font-family="system-ui, sans-serif" font-size="9" font-weight="bold" fill="#ffffff" text-anchor="middle" letter-spacing="0.5">NURSING</text>
+  </g>
+
+  <!-- Engineering and Emerging Sciences (Orange Bottom-Center) -->
+  <path d="M 250 250 L 160 365 A 155 155 0 0 0 340 365 Z" fill="#c2410c" />
+  <g transform="translate(250, 342) scale(0.65)">
+    <!-- Cogwheel / Gear -->
+    <circle cx="0" cy="0" r="14" fill="#ffffff" />
+    <circle cx="0" cy="0" r="6" fill="#c2410c" />
+    <text x="0" y="24" font-family="system-ui, sans-serif" font-size="7.5" font-weight="bold" fill="#ffffff" text-anchor="middle" letter-spacing="0.5">ENGINEERING &amp; EMERGING</text>
+    <text x="0" y="33" font-family="system-ui, sans-serif" font-size="7.5" font-weight="bold" fill="#ffffff" text-anchor="middle" letter-spacing="0.5">SCIENCES</text>
+  </g>
+
+  <!-- CENTRAL SHIELD -->
+  <g filter="url(#subtleShadow)">
+    <!-- Outer Shield Border -->
+    <path d="M 170 145 Q 250 135 330 145 C 330 220 310 280 250 315 C 190 280 170 220 170 145 Z" 
+          fill="url(#shieldGrad)" stroke="url(#goldGrad)" stroke-width="4.5" />
+    
+    <!-- Inner Gold Shield Inset Line -->
+    <path d="M 178 152 Q 250 144 322 152 C 322 216 304 270 250 304 C 196 270 178 216 178 152 Z" 
+          fill="none" stroke="#d4af37" stroke-width="1.5" opacity="0.8" />
+
+    <!-- 5 Golden Stars at Top of Shield -->
+    <g fill="url(#goldGrad)" transform="translate(250, 160)">
+      <polygon points="0,-7 2,-2 7,-2 3,2 5,7 0,3 -5,7 -3,2 -7,-2 -2,-2" transform="translate(0, 0) scale(0.9)" />
+      <polygon points="0,-7 2,-2 7,-2 3,2 5,7 0,3 -5,7 -3,2 -7,-2 -2,-2" transform="translate(-20, 2) scale(0.75)" />
+      <polygon points="0,-7 2,-2 7,-2 3,2 5,7 0,3 -5,7 -3,2 -7,-2 -2,-2" transform="translate(-40, 5) scale(0.65)" />
+      <polygon points="0,-7 2,-2 7,-2 3,2 5,7 0,3 -5,7 -3,2 -7,-2 -2,-2" transform="translate(20, 2) scale(0.75)" />
+      <polygon points="0,-7 2,-2 7,-2 3,2 5,7 0,3 -5,7 -3,2 -7,-2 -2,-2" transform="translate(40, 5) scale(0.65)" />
+    </g>
+
+    <!-- Main Shield Word: KVELL -->
+    <text x="250" y="210" font-family="'Cinzel', 'Times New Roman', serif" font-size="44" font-weight="900" fill="#ffffff" text-anchor="middle" letter-spacing="4" filter="url(#subtleShadow)">
+      KVELL
+    </text>
+
+    <!-- Tagline Banner Below KVELL: EDUCATIONAL LORE FOR LEARNING -->
+    <rect x="180" y="218" width="140" height="15" rx="3" fill="#ea580c" />
+    <text x="250" y="229" font-family="system-ui, sans-serif" font-size="7.5" font-weight="bold" fill="#ffffff" text-anchor="middle" letter-spacing="1">
+      EDUCATIONAL LORE FOR LEARNING
+    </text>
+
+    <!-- Open Book Symbol Inside Shield -->
+    <g transform="translate(250, 260) scale(0.95)" fill="#ffffff" stroke="#c5a059" stroke-width="1.5">
+      <!-- Left Page -->
+      <path d="M 0 5 Q -22 -6 -42 0 Q -42 18 -42 22 Q -22 14 0 25 Z" fill="#ffffff" />
+      <!-- Right Page -->
+      <path d="M 0 5 Q 22 -6 42 0 Q 42 18 42 22 Q 22 14 0 25 Z" fill="#ffffff" />
+      <!-- Spine -->
+      <line x1="0" y1="5" x2="0" y2="25" stroke="#aa771c" stroke-width="2" />
+      <!-- Book Lines -->
+      <path d="M -10 11 Q -24 5 -36 8" stroke="#cbd5e1" stroke-width="1" fill="none" />
+      <path d="M -10 16 Q -24 10 -36 13" stroke="#cbd5e1" stroke-width="1" fill="none" />
+      <path d="M 10 11 Q 24 5 36 8" stroke="#cbd5e1" stroke-width="1" fill="none" />
+      <path d="M 10 16 Q 24 10 36 13" stroke="#cbd5e1" stroke-width="1" fill="none" />
+    </g>
+
+    <!-- Cogwheel at base of Shield -->
+    <circle cx="250" cy="285" r="9" fill="#ea580c" stroke="url(#goldGrad)" stroke-width="2" />
+    <circle cx="250" cy="285" r="3.5" fill="#ffffff" />
+  </g>
+
+  <!-- BOTTOM RIBBON BANNER: DEEMED UNIVERSITY -->
+  <g filter="url(#subtleShadow)">
+    <!-- Ribbon Base Shape with Fold Cuts -->
+    <path d="M 100 405 L 145 375 L 355 375 L 400 405 L 380 435 L 355 422 L 145 422 L 120 435 Z" 
+          fill="url(#ribbonGrad)" stroke="url(#goldGrad)" stroke-width="3.5" />
+    
+    <!-- Ribbon Inner Line -->
+    <path d="M 135 383 L 365 383 L 375 415 L 125 415 Z" fill="none" stroke="#d4af37" stroke-width="1" opacity="0.8" />
+
+    <!-- Gold Studs / Stars on Banner Ends -->
+    <circle cx="132" cy="398" r="4" fill="url(#goldGrad)" />
+    <circle cx="368" cy="398" r="4" fill="url(#goldGrad)" />
+
+    <!-- Ribbon Text: DEEMED UNIVERSITY -->
+    <text x="250" y="405" font-family="'Cinzel', 'Times New Roman', serif" font-size="20" font-weight="bold" fill="#ffffff" text-anchor="middle" letter-spacing="3">
+      • DEEMED UNIVERSITY •
+    </text>
+  </g>
+</svg>

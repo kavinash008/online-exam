@@ -3,6 +3,7 @@ import { useExam } from '../context/ExamContext';
 import { Exam, Question, ExamAttempt } from '../types';
 import { AntiCheatModal } from '../components/AntiCheatModal';
 import { CodeEditor } from '../components/CodeEditor';
+import { KvellLogo } from '../components/KvellLogo';
 import {
   Clock,
   ShieldAlert,
@@ -16,7 +17,10 @@ import {
   AlertOctagon,
   HelpCircle,
   Sparkles,
-  Lock
+  Lock,
+  AlertTriangle,
+  X,
+  Check,
 } from 'lucide-react';
 
 interface ExamRoomProps {

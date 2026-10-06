@@ -35,11 +35,11 @@ export const AdminDashboard: React.FC = () => {
 
   // System Users
   const systemUsers = [
-    { name: 'Dr. Aris Thorne', email: 'a.thorne@faculty.edu', role: 'faculty', dept: 'CSE' },
-    { name: 'Prof. Elena Rostova', email: 'e.rostova@faculty.edu', role: 'faculty', dept: 'ISCD' },
-    { name: 'Alex Mercer', email: 'alex.mercer@university.edu', role: 'student', dept: 'CSE' },
-    { name: 'Maya Lin', email: 'maya.lin@university.edu', role: 'student', dept: 'CSE' },
-    { name: 'Julian Vance', email: 'j.vance@university.edu', role: 'student', dept: 'CSE' },
+    { name: 'Dr.A.Johny', email: 'A.Johny@faculty.edu', role: 'faculty', dept: 'CSE' },
+    { name: 'Prof.priyadharshini', email: 'priyadharshini@faculty.edu', role: 'faculty', dept: 'ISCD' },
+    { name: 'K.Kavinash', email: 'kavinashk008@gmail.com', role: 'student', dept: 'CSE' },
+    { name: 'M.Navaneedha krishna', email: 'krish@gmail.com', role: 'student', dept: 'CSE' },
+    { name: 'K.J.Pranav', email: 'pranavmano@gmail.com', role: 'student', dept: 'CSE' },
     { name: 'Super Administrator', email: 'admin@exampro.edu', role: 'admin', dept: 'Academic IT' },
   ];
 
