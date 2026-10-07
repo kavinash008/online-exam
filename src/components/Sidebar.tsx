@@ -26,8 +26,9 @@ import {
   PlusCircle,
   Home,
   CheckCircle,
+  X,
 } from 'lucide-react';
-import { motion } from 'motion/react';
+import { motion, AnimatePresence } from 'motion/react';
 import { UserRole } from '../types';
 
 interface SidebarProps {
@@ -37,6 +38,8 @@ interface SidebarProps {
   collapsed: boolean;
   onToggleCollapse: () => void;
   onGoToLanding?: () => void;
+  isOpenMobile?: boolean;
+  onCloseMobile?: () => void;
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
@@ -46,6 +49,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
   collapsed,
   onToggleCollapse,
   onGoToLanding,
+  isOpenMobile = false,
+  onCloseMobile,
 }) => {
   const { user, logout, notifications, metrics } = useExam();
 
@@ -192,8 +197,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const visibleNav = navItems.filter((item) => item.roles.includes(user.role));
 
   return (
-    <motion.aside
-      initial={false}
+    <>
+      <motion.aside
+        initial={false}
       animate={{ width: collapsed ? 76 : 260 }}
       transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
       className="hidden md:flex flex-col flex-shrink-0 h-screen sticky top-0 z-30 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border-r border-slate-200/80 dark:border-slate-800/80 select-none overflow-hidden transition-colors"
@@ -359,5 +365,112 @@ export const Sidebar: React.FC<SidebarProps> = ({
         )}
       </div>
     </motion.aside>
-  );
+
+    {/* Mobile Slide-Over Navigation Drawer */}
+    <AnimatePresence>
+      {isOpenMobile && (
+        <div className="fixed inset-0 z-50 md:hidden flex">
+          {/* Backdrop */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={onCloseMobile}
+            className="fixed inset-0 bg-slate-950/60 backdrop-blur-xs"
+          />
+
+          {/* Drawer Content */}
+          <motion.div
+            initial={{ x: '-100%' }}
+            animate={{ x: 0 }}
+            exit={{ x: '-100%' }}
+            transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+            className="relative w-72 max-w-[85vw] h-full bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 flex flex-col z-10 shadow-2xl"
+          >
+            {/* Mobile Header */}
+            <div className="h-16 flex items-center justify-between px-4 border-b border-slate-200/80 dark:border-slate-800/80">
+              <div className="flex items-center gap-2">
+                <KvellLogo variant="horizontal" size="xs" showSubtitle={false} />
+              </div>
+              <button
+                onClick={onCloseMobile}
+                className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* User Badge */}
+            <div className="p-3 bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200/80 dark:border-slate-800/80">
+              <div className="flex items-center justify-between mb-1">
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Workspace</span>
+                <span className="text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider bg-indigo-100 text-indigo-700 dark:bg-indigo-950 dark:text-indigo-300">
+                  {user.role}
+                </span>
+              </div>
+              <div className="text-xs font-bold text-slate-900 dark:text-white truncate">{user.displayName}</div>
+              <div className="text-[10px] text-slate-400 truncate">{user.department}</div>
+            </div>
+
+            {/* Nav list */}
+            <nav className="flex-1 px-3 py-3 space-y-1 overflow-y-auto">
+              {visibleNav.map((item) => {
+                const isActive = currentView === item.id;
+                return (
+                  <button
+                    key={item.id}
+                    onClick={() => {
+                      onNavigate(item.id);
+                      if (onCloseMobile) onCloseMobile();
+                    }}
+                    className={`w-full flex items-center justify-between p-2.5 rounded-xl text-xs font-semibold transition-all ${
+                      isActive
+                        ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/20'
+                        : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
+                    }`}
+                  >
+                    <div className="flex items-center gap-3">
+                      {item.icon}
+                      <span>{item.label}</span>
+                    </div>
+                    {item.badge && (
+                      <span className="px-1.5 py-0.5 rounded-full text-[9px] font-bold bg-indigo-100 text-indigo-700 dark:bg-indigo-950 dark:text-indigo-300">
+                        {item.badge}
+                      </span>
+                    )}
+                  </button>
+                );
+              })}
+            </nav>
+
+            {/* Action Buttons */}
+            <div className="p-3 border-t border-slate-200 dark:border-slate-800 space-y-2">
+              <button
+                onClick={() => {
+                  onOpenAiTutor();
+                  if (onCloseMobile) onCloseMobile();
+                }}
+                className="w-full flex items-center justify-center gap-2 p-2 rounded-xl text-xs font-bold bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800"
+              >
+                <Sparkles className="w-3.5 h-3.5 text-amber-500 animate-pulse" />
+                <span>Open KVELL AI Mentor</span>
+              </button>
+
+              <button
+                onClick={() => {
+                  logout();
+                  if (onCloseMobile) onCloseMobile();
+                }}
+                className="w-full flex items-center justify-center gap-2 p-2 rounded-xl text-xs font-semibold text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40"
+              >
+                <LogOut className="w-4 h-4" />
+                <span>Log Out</span>
+              </button>
+            </div>
+          </motion.div>
+        </div>
+      )}
+    </AnimatePresence>
+  </>
+);
 };

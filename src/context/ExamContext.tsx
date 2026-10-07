@@ -52,6 +52,8 @@ interface ExamContextType {
   user: UserProfile;
   setUser: React.Dispatch<React.SetStateAction<UserProfile>>;
   usersList: UserProfile[];
+  isAuthenticated: boolean;
+  setIsAuthenticated: (auth: boolean) => void;
   switchRole: (role: UserRole) => void;
   registerUser: (data: Partial<UserProfile>) => Promise<void>;
   loginWithCredentials: (email: string, pass: string, role?: UserRole) => Promise<void>;
@@ -190,6 +192,11 @@ export const ExamProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [usersList, setUsersList] = useState<UserProfile[]>(() => {
     const saved = localStorage.getItem('kvell_users_list');
     return saved ? JSON.parse(saved) : SEED_USERS;
+  });
+
+  // Authentication State
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => {
+    return localStorage.getItem('kvell_auth') === 'true';
   });
 
   const [darkMode, setDarkMode] = useState<boolean>(() => {
@@ -373,6 +380,8 @@ export const ExamProvider: React.FC<{ children: React.ReactNode }> = ({ children
         createdAt: new Date().toISOString(),
       };
       setUser(target);
+      setIsAuthenticated(true);
+      localStorage.setItem('kvell_auth', 'true');
 
       // Audit Log
       setSystemLogs((prev) => [
@@ -405,6 +414,8 @@ export const ExamProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     setUsersList((prev) => [...prev, newUser]);
     setUser(newUser);
+    setIsAuthenticated(true);
+    localStorage.setItem('kvell_auth', 'true');
 
     // Save to Firestore
     try {
@@ -443,6 +454,8 @@ export const ExamProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setUsersList((prev) => [...prev, found!]);
     }
     setUser(found);
+    setIsAuthenticated(true);
+    localStorage.setItem('kvell_auth', 'true');
 
     setSystemLogs((prev) => [
       {
@@ -473,6 +486,8 @@ export const ExamProvider: React.FC<{ children: React.ReactNode }> = ({ children
           createdAt: new Date().toISOString(),
         };
         setUser(authedUser);
+        setIsAuthenticated(true);
+        localStorage.setItem('kvell_auth', 'true');
         setUsersList((prev) => (prev.some((u) => u.id === authedUser.id) ? prev : [...prev, authedUser]));
       }
     } catch (error) {
@@ -486,7 +501,8 @@ export const ExamProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } catch (e) {
       // Ignore
     }
-    switchRole('student');
+    setIsAuthenticated(false);
+    localStorage.removeItem('kvell_auth');
   };
 
   // Exam CRUD Operations
@@ -1021,7 +1037,7 @@ export const ExamProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
 
     try {
-      await updateDoc(doc(db, 'exam_attempts', attemptId), evaluatedAttempt);
+      await updateDoc(doc(db, 'exam_attempts', attemptId), { ...evaluatedAttempt } as any);
     } catch (e) {
       console.warn('Firestore attempt submit notice:', e);
     }
@@ -1242,6 +1258,8 @@ export const ExamProvider: React.FC<{ children: React.ReactNode }> = ({ children
         user,
         setUser,
         usersList,
+        isAuthenticated,
+        setIsAuthenticated,
         switchRole,
         registerUser,
         loginWithCredentials,

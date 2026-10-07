@@ -25,8 +25,8 @@ export type DifficultyLevel = 'easy' | 'medium' | 'hard';
 export interface Question {
   id: string;
   examId?: string;       // Optional if belonging to Question Bank
-  subject: string;       // e.g. Computer Science, Medicine, Pharmacy
-  topic: string;         // e.g. Data Structures, Clinical Pharmacology
+  subject?: string;      // e.g. Computer Science, Medicine, Pharmacy
+  topic?: string;        // e.g. Data Structures, Clinical Pharmacology
   section: string;       // Section name within exam (e.g. Core Knowledge)
   type: QuestionType;
   text: string;
@@ -86,7 +86,7 @@ export interface ExamAttempt {
   totalMarks: number;
   percentage: number;
   passed: boolean;
-  accuracy: number;
+  accuracy?: number;
   correctCount: number;
   wrongCount: number;
   skippedCount: number;

@@ -91,9 +91,9 @@ export const AiChatDrawer: React.FC<AiChatDrawerProps> = ({ isOpen, onClose }) =
               </div>
               <div>
                 <h3 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
-                  ExamPro AI Assistant
+                  KVELL AI Mentor
                   <span className="text-[10px] px-1.5 py-0.2 rounded-full font-bold bg-indigo-100 dark:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300">
-                    gemini-3.8-flash
+                    Academic Tutor
                   </span>
                 </h3>
                 <p className="text-[11px] text-slate-500 dark:text-slate-400">
@@ -197,7 +197,7 @@ export const AiChatDrawer: React.FC<AiChatDrawerProps> = ({ isOpen, onClose }) =
                 </div>
                 <div className="flex items-center gap-1.5 bg-slate-100 dark:bg-slate-800 px-3 py-2 rounded-xl">
                   <Loader2 className="w-3.5 h-3.5 animate-spin text-indigo-500" />
-                  <span>ExamPro AI is formulating response...</span>
+                  <span>KVELL AI Mentor is formulating response...</span>
                 </div>
               </div>
             )}

@@ -21,6 +21,7 @@ import {
   AlertTriangle,
   X,
   Check,
+  Layers,
 } from 'lucide-react';
 
 interface ExamRoomProps {
@@ -54,6 +55,7 @@ export const ExamRoom: React.FC<ExamRoomProps> = ({ exam, onExit, onFinished }) 
   const [autoSubmitted, setAutoSubmitted] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [lastSavedTime, setLastSavedTime] = useState<string>('Just now');
+  const [mobilePaletteOpen, setMobilePaletteOpen] = useState(false);
 
   const examQuestions: Question[] = questions[exam.id] || [];
   const currentQ = examQuestions[currentIndex];
@@ -434,6 +436,16 @@ export const ExamRoom: React.FC<ExamRoomProps> = ({ exam, onExit, onFinished }) 
             </div>
           )}
 
+          {/* Mobile Question Palette Opener */}
+          <button
+            onClick={() => setMobilePaletteOpen(true)}
+            className="lg:hidden flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-xs font-bold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700"
+            title="Question Palette"
+          >
+            <Layers className="w-3.5 h-3.5 text-indigo-500" />
+            <span>{currentIndex + 1}/{examQuestions.length}</span>
+          </button>
+
           <div
             className={`flex items-center gap-2 px-3.5 py-1.5 rounded-xl font-mono text-xs sm:text-sm font-bold border transition-colors ${
               isUrgent
@@ -756,6 +768,87 @@ export const ExamRoom: React.FC<ExamRoomProps> = ({ exam, onExit, onFinished }) 
           </div>
         </div>
       </div>
+
+      {/* Mobile Question Palette Modal Drawer */}
+      {mobilePaletteOpen && (
+        <div className="fixed inset-0 z-50 lg:hidden flex items-end sm:items-center justify-center p-3 bg-slate-950/70 backdrop-blur-xs">
+          <div className="w-full max-w-md bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-5 shadow-2xl space-y-4 max-h-[85vh] overflow-y-auto">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
+              <div>
+                <h4 className="text-sm font-bold text-slate-900 dark:text-white">Question Navigator</h4>
+                <p className="text-[11px] text-slate-500">Tap any question to navigate directly</p>
+              </div>
+              <button
+                onClick={() => setMobilePaletteOpen(false)}
+                className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* Legend */}
+            <div className="grid grid-cols-2 gap-2 text-[10px] text-slate-500 dark:text-slate-400 pb-2">
+              <div className="flex items-center gap-1.5">
+                <span className="w-3 h-3 rounded-md bg-emerald-500 inline-block" />
+                <span>Answered</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <span className="w-3 h-3 rounded-md bg-purple-500 inline-block" />
+                <span>Marked</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <span className="w-3 h-3 rounded-md bg-indigo-600 inline-block" />
+                <span>Current</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <span className="w-3 h-3 rounded-md bg-slate-200 dark:bg-slate-700 inline-block" />
+                <span>Not Visited</span>
+              </div>
+            </div>
+
+            {/* Grid */}
+            <div className="grid grid-cols-5 gap-2 max-h-60 overflow-y-auto pr-1">
+              {examQuestions.map((q, idx) => {
+                const isCurrent = idx === currentIndex;
+                const isAnswered =
+                  answers[q.id] !== undefined &&
+                  answers[q.id] !== '' &&
+                  (!Array.isArray(answers[q.id]) || answers[q.id].length > 0);
+                const isMarked = markedForReview.includes(q.id);
+
+                let bgClass = 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300';
+                if (isCurrent) {
+                  bgClass = 'bg-indigo-600 text-white ring-2 ring-indigo-400';
+                } else if (isMarked) {
+                  bgClass = 'bg-purple-600 text-white';
+                } else if (isAnswered) {
+                  bgClass = 'bg-emerald-600 text-white';
+                }
+
+                return (
+                  <button
+                    key={q.id}
+                    onClick={() => {
+                      setCurrentIndex(idx);
+                      setMobilePaletteOpen(false);
+                    }}
+                    className={`h-10 rounded-xl text-xs font-bold flex items-center justify-center transition-all ${bgClass}`}
+                  >
+                    {idx + 1}
+                  </button>
+                );
+              })}
+            </div>
+
+            <button
+              onClick={() => setMobilePaletteOpen(false)}
+              className="w-full py-2.5 rounded-xl text-xs font-semibold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+            >
+              Resume Question {currentIndex + 1}
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

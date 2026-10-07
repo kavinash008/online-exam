@@ -64,7 +64,7 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({
           myCompletedAttempts.reduce((acc, curr) => acc + curr.percentage, 0) /
             myCompletedAttempts.length
         )
-      : 88;
+      : 0;
 
   return (
     <motion.div

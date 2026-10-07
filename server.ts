@@ -34,7 +34,7 @@ const ai = new GoogleGenAI({
 
 // Health check
 app.get('/api/health', (_req: Request, res: Response) => {
-  res.json({ status: 'ok', service: 'ExamPro AI Server', timestamp: new Date().toISOString() });
+  res.json({ status: 'ok', service: 'KVELL Academic Examination Server', timestamp: new Date().toISOString() });
 });
 
 // Intelligent fallback helper for Academic AI Tutor
@@ -50,14 +50,14 @@ function generateIntelligentChatFallback(query: string, role: string): string {
   }
 
   if (q.includes('proctor') || q.includes('rule') || q.includes('cheat') || q.includes('fullscreen')) {
-    return "### ExamPro Academic Integrity Rules\n\nExamPro AI enforces a multi-layered integrity protocol:\n1. **Fullscreen Enforcement**: Candidates must remain in fullscreen mode throughout the test.\n2. **Page Visibility Monitoring**: Leaving the active examination tab or minimizing the window triggers an automatic breach warning.\n3. **Clipboard Protection**: Copy, paste, and right-click interactions are disabled during proctored sessions.\n4. **Progressive Warning System**: Four recorded warnings lead to automatic session termination and forced submission.\n\nIf you have technical questions regarding proctoring policies or accommodations, let me know!";
+    return "### KVELL Academic Integrity & Examination Rules\n\nKVELL enforces a multi-layered integrity protocol at Karpaga Vinayaga Deemed to be University:\n1. **Fullscreen Enforcement**: Candidates must remain in fullscreen mode throughout the test.\n2. **Page Visibility Monitoring**: Leaving the active examination tab or minimizing the window triggers an automatic breach warning.\n3. **Clipboard Protection**: Copy, paste, and right-click interactions are disabled during proctored sessions.\n4. **Progressive Warning System**: Four recorded warnings lead to automatic session termination and forced submission.\n\nIf you have technical questions regarding proctoring policies or accommodations, let me know!";
   }
 
   if (role === 'faculty') {
     return "### Assessment Design & Proctoring Recommendation\n\nWhen structuring online examinations, we recommend:\n1. **Bloom's Taxonomy Balance**: 40% foundational recall/application, 40% analytical problem solving, and 20% synthesis or evaluation.\n2. **Time Budgeting**: Allocate approximately 1.5 minutes per multiple-choice question and 8–10 minutes per algorithmic or short-answer challenge.\n3. **Anti-Cheat Best Practices**: Enable question and option shuffling, strict fullscreen locks, and 4-tier progressive violation warnings.\n\nHow can I assist you with question bank authoring or rubric calibration today?";
   }
 
-  return "### ExamPro AI Academic Guidance\n\nI am here to support your exam preparation and concept revision. I can help you:\n* Clarify theoretical concepts across Data Structures, Algorithms, Systems, and Cybersecurity.\n* Understand time and space complexity tradeoffs ($O(1)$, $O(\\log n)$, $O(n)$, $O(n \\log n)$, $O(n^2)$).\n* Review examination policies, rubric criteria, and question formats.\n* Structure step-by-step revision strategies for upcoming assessments.\n\nWhat topic or question would you like to explore next?";
+  return "### KVELL AI Academic Guidance\n\nI am here to support your exam preparation and concept revision at Karpaga Vinayaga Deemed to be University. I can help you:\n* Clarify theoretical concepts across Data Structures, Algorithms, Systems, and Cybersecurity.\n* Understand time and space complexity tradeoffs ($O(1)$, $O(\\log n)$, $O(n)$, $O(n \\log n)$, $O(n^2)$).\n* Review examination policies, rubric criteria, and question formats.\n* Structure step-by-step revision strategies for upcoming assessments.\n\nWhat topic or question would you like to explore next?";
 }
 
 // Gemini Multi-turn Chat endpoint
@@ -70,10 +70,10 @@ app.post('/api/gemini/chat', async (req: Request, res: Response) => {
     }
 
     const defaultInstruction = role === 'student'
-      ? "You are ExamPro AI Tutor, a knowledgeable, encouraging academic mentor. You help students understand concepts, clarify exam rules, prepare revision strategies, and review test solutions without giving away answers during an active exam."
+      ? "You are KVELL AI Tutor, a knowledgeable, encouraging academic mentor at Karpaga Vinayaga Deemed to be University. You help students understand concepts, clarify exam rules, prepare revision strategies, and review test solutions without giving away answers during an active exam."
       : role === 'faculty'
-      ? "You are ExamPro AI Faculty Assistant, an expert in pedagogy, psychometrics, and online proctoring. You help professors create balanced assessments, design Bloom's taxonomy-aligned questions, evaluate integrity metrics, and optimize exam parameters."
-      : "You are ExamPro AI Assistant, an intelligent system guide for students, faculty, and administrators using this secure online examination platform.";
+      ? "You are KVELL AI Faculty Assistant, an expert in pedagogy, psychometrics, and online proctoring. You help professors create balanced assessments, design Bloom's taxonomy-aligned questions, evaluate integrity metrics, and optimize exam parameters."
+      : "You are KVELL AI Assistant, an intelligent system guide for students, faculty, and administrators using this secure online examination platform.";
 
     // Clean and validate messages
     const validMessages = messages.filter(
@@ -458,7 +458,7 @@ async function startServer() {
   }
 
   app.listen(PORT, '0.0.0.0', () => {
-    console.log(`[ExamPro AI] Server listening on port ${PORT}`);
+    console.log(`[KVELL] Server listening on port ${PORT}`);
   });
 }
 

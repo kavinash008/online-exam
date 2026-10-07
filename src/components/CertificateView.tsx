@@ -68,7 +68,7 @@ export const CertificateView: React.FC<CertificateViewProps> = ({ certificate, o
             <Award className="w-9 h-9" />
           </div>
           <h4 className="text-xs font-black uppercase tracking-[0.3em] text-[#93712d]">
-            ExamPro Global Academy of Computer Science
+            Karpaga Vinayaga Deemed to be University &bull; KVELL
           </h4>
           <h1 className="text-3xl sm:text-4xl font-serif font-bold text-slate-900 mt-2 tracking-tight">
             Certificate of Academic Excellence
